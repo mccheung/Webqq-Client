@@ -3,6 +3,13 @@ use Webqq::Client::Util qw(console);
 sub Webqq::Client::get_qq_from_uin{
     my $self = shift;
     my $uin = shift;
+
+    # 如果用户组处于陌生人组, 则无法得到 $uin
+    unless ( $uin ) {
+      console "无效的uin\n";
+      return undef;
+    }
+
     my $cache_data =  $self->{cache_for_uin_to_qq}->retrieve($uin);
     return $cache_data if defined $cache_data;
     my $ua = $self->{ua};
@@ -15,7 +22,7 @@ sub Webqq::Client::get_qq_from_uin{
         code            =>  undef,
         vfwebqq         =>  $self->{qq_param}{vfwebqq},
         t               =>  time,
-    );     
+    );
     my @query_string_pairs;
     push @query_string_pairs , shift(@query_string) . "=" . shift(@query_string) while(@query_string);
     my $response = $ua->get($api_url.'?'.join("&",@query_string_pairs),@headers);
